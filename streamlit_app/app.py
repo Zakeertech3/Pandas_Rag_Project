@@ -1,17 +1,14 @@
 import streamlit as st
 import os
-import time
-import uuid
-from pathlib import Path
-import PyPDF2
-import re
-import tiktoken
+import pickle
 import numpy as np
+from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
 from groq import Groq
 from dotenv import load_dotenv
+import re
+import time
 
 # Load environment variables
 load_dotenv()
@@ -24,457 +21,480 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for professional styling
+# Clean, modern CSS styling
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+    
+    /* Global styling */
+    .stApp {
+        font-family: 'Inter', sans-serif;
+        background-color: #0e1117;
+        color: #fafafa;
+    }
+    
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* Header */
+    .app-header {
         text-align: center;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #262730;
+    }
+    
+    .app-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: #fafafa;
+        margin-bottom: 0.5rem;
+    }
+    
+    .app-subtitle {
+        font-size: 1.1rem;
+        color: #8b949e;
+        font-weight: 400;
+    }
+    
+    /* Status indicators */
+    .status-container {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 1rem;
         margin-bottom: 1rem;
     }
-    .chat-message {
-        padding: 1rem;
-        border-radius: 0.5rem;
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .status-success {
+        background-color: #238636;
+        color: #ffffff;
+    }
+    
+    .status-error {
+        background-color: #da3633;
+        color: #ffffff;
+    }
+    
+    .status-warning {
+        background-color: #bf8700;
+        color: #ffffff;
+    }
+    
+    /* Metrics */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
         margin: 1rem 0;
-        background-color: transparent;
     }
+    
+    .metric-card {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #58a6ff;
+        margin-bottom: 0.25rem;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        color: #8b949e;
+    }
+    
+    /* Sidebar styling */
+    .sidebar-section {
+        margin-bottom: 2rem;
+    }
+    
+    .sidebar-title {
+        font-weight: 600;
+        color: #fafafa;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Quick action buttons */
+    .quick-button {
+        width: 100%;
+        background-color: #21262d;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        color: #fafafa;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    
+    .quick-button:hover {
+        background-color: #30363d;
+        border-color: #58a6ff;
+    }
+    
+    /* Input styling */
+    .stTextInput input {
+        background-color: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        color: #fafafa;
+    }
+    
+    .stTextInput input:focus {
+        border-color: #58a6ff;
+        box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+    }
+    
+    /* Button styling */
+    .stButton button {
+        background-color: #238636;
+        border: 1px solid #238636;
+        border-radius: 6px;
+        color: #ffffff;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .stButton button:hover {
+        background-color: #2ea043;
+        border-color: #2ea043;
+    }
+    
+    /* Chat styling */
+    .chat-message {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #30363d;
+    }
+    
     .user-message {
-        border-left: 4px solid #2196f3;
-        background-color: transparent;
+        background-color: #0d1117;
+        margin-left: 2rem;
     }
+    
     .assistant-message {
-        border-left: 4px solid #4caf50;
-        background-color: transparent;
+        background-color: #161b22;
+        margin-right: 2rem;
     }
-    .relevance-score {
-        font-size: 0.8rem;
-        color: #666;
-        font-style: italic;
+    
+    /* Hide default Streamlit elements */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stDeployButton {visibility: hidden;}
+    
+    /* Override Streamlit's default colors */
+    .stMarkdown, .stText, p, div, span {
+        color: #fafafa;
     }
-    .error-message {
-        background-color: #ffebee;
-        border-left: 4px solid #f44336;
-        padding: 1rem;
-        border-radius: 0.5rem;
+    
+    /* Sidebar specific overrides */
+    .css-1d391kg .stMarkdown {
+        color: #fafafa;
     }
-    .success-message {
-        background-color: #e8f5e8;
-        border-left: 4px solid #4caf50;
-        padding: 1rem;
-        border-radius: 0.5rem;
+    
+    /* Success/Error message styling */
+    .stSuccess, .stError, .stInfo, .stWarning {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        color: #fafafa;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Working functions from our notebooks
+# Load system components
 @st.cache_resource
-def initialize_tokenizer():
-    """Initialize tokenizer with caching"""
-    return tiktoken.get_encoding("cl100k_base")
-
-@st.cache_resource
-def initialize_embedding_model():
-    """Initialize embedding model with caching"""
-    return SentenceTransformer('all-MiniLM-L6-v2')
-
-@st.cache_resource
-def initialize_qdrant_client():
-    """Initialize Qdrant client with caching"""
+def initialize_rag_system():
+    """Initialize the optimized RAG system"""
     try:
-        client = QdrantClient("localhost", port=6333)
-        return client
+        PROJECT_ROOT = Path.cwd()
+        if 'streamlit_app' in str(PROJECT_ROOT):
+            PROJECT_ROOT = PROJECT_ROOT.parent
+        
+        PROCESSED_DIR = PROJECT_ROOT / 'data' / 'processed'
+        
+        # Load evaluation data
+        with open(PROCESSED_DIR / 'improved_evaluation.pkl', 'rb') as f:
+            eval_data = pickle.load(f)
+        
+        # Initialize components
+        embedding_model = SentenceTransformer(eval_data['configuration']['embedding_model'])
+        qdrant_client = QdrantClient("localhost", port=6333)
+        
+        return {
+            'embedding_model': embedding_model,
+            'qdrant_client': qdrant_client,
+            'collection_name': "pandas_docs_optimized",
+            'eval_data': eval_data,
+            'status': 'success'
+        }
     except Exception as e:
-        st.error(f"Failed to connect to Qdrant: {e}")
-        return None
+        return {'status': 'error', 'error': str(e)}
 
-def count_tokens(text, tokenizer):
-    """Count tokens in text"""
-    return len(tokenizer.encode(text))
+def preprocess_query(query):
+    """Enhanced query preprocessing"""
+    normalizations = {
+        'dataframe': 'DataFrame',
+        'data frame': 'DataFrame',
+        'series': 'Series',
+        'groupby': 'group by aggregation',
+        'concat': 'concatenate combine'
+    }
+    
+    processed = query.lower()
+    for wrong, correct in normalizations.items():
+        processed = processed.replace(wrong, correct)
+    
+    if 'pandas' not in processed and any(term in processed for term in ['DataFrame', 'Series', 'csv']):
+        processed = f"pandas {processed}"
+    
+    return processed
 
-def clean_text(text):
-    """Basic text cleaning"""
-    text = re.sub(r'\s+', ' ', text)
-    text = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
-    text = re.sub(r'([.!?])\s*([A-Z])', r'\1 \2', text)
-    text = re.sub(r'([a-z])\s*\n\s*([a-z])', r'\1 \2', text)
-    text = re.sub(r'\n\s*\n', '\n\n', text)
-    return text.strip()
-
-def fixed_enhanced_cleaning(text):
-    """Enhanced cleaning for pandas documentation"""
-    text = clean_text(text)
-    
-    # Fix specific PDF artifacts
-    text = re.sub(r'\bwher\s+e\b', 'where', text)
-    text = re.sub(r'\btransfor\s+ms\b', 'transforms', text)
-    text = re.sub(r'\bcomp\s+lex\b', 'complex', text)
-    text = re.sub(r'\boper\s+ation\s+s\b', 'operations', text)
-    text = re.sub(r'\bData\s+Frame\b', 'DataFrame', text)
-    text = re.sub(r'\bgroup\s+by\b', 'groupby', text, flags=re.IGNORECASE)
-    
-    return text
-
-def detect_code_blocks(text):
-    """Detect if text contains code examples"""
-    code_patterns = [
-        r'import\s+\w+', r'pd\.\w+', r'df\.\w+', r'print\s*\(',
-        r'=\s*pd\.', r'\.groupby\(', r'\.merge\(', r'\.iloc\[', r'\.loc\['
-    ]
-    code_score = sum(len(re.findall(pattern, text, re.IGNORECASE)) for pattern in code_patterns)
-    return code_score > 2
-
-def robust_text_splitting(text):
-    """Split text using multiple strategies"""
-    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
-    
-    if len(paragraphs) < 3:
-        lines = [line.strip() for line in text.split('\n') if line.strip()]
-        paragraphs = []
-        current_para = ""
-        
-        for line in lines:
-            if line.endswith(('.', '!', '?', ':')) or len(current_para) > 300:
-                current_para += " " + line if current_para else line
-                if len(current_para.split()) > 20:
-                    paragraphs.append(current_para)
-                    current_para = ""
-            else:
-                current_para += " " + line if current_para else line
-        
-        if current_para:
-            paragraphs.append(current_para)
-    
-    if len(paragraphs) < 2:
-        sentences = re.split(r'[.!?]+\s+', text)
-        paragraphs = []
-        current_para = ""
-        
-        for sentence in sentences:
-            sentence = sentence.strip()
-            if not sentence:
-                continue
-            if count_tokens(current_para + " " + sentence, st.session_state.tokenizer) > 200:
-                if current_para:
-                    paragraphs.append(current_para)
-                current_para = sentence
-            else:
-                current_para += " " + sentence if current_para else sentence
-        
-        if current_para:
-            paragraphs.append(current_para)
-    
-    return paragraphs
-
-def working_chunking_strategy(text, target_size=1000, min_size=400):
-    """Final working chunking strategy"""
-    cleaned_text = fixed_enhanced_cleaning(text)
-    segments = robust_text_splitting(cleaned_text)
-    
-    chunks = []
-    current_chunk = ""
-    
-    for segment in segments:
-        current_tokens = count_tokens(current_chunk, st.session_state.tokenizer)
-        segment_tokens = count_tokens(segment, st.session_state.tokenizer)
-        
-        if current_tokens + segment_tokens > target_size and current_tokens >= min_size:
-            chunks.append({
-                'text': current_chunk.strip(),
-                'token_count': current_tokens,
-                'has_code': detect_code_blocks(current_chunk)
-            })
-            current_chunk = segment
-        else:
-            current_chunk += "\n\n" + segment if current_chunk else segment
-    
-    if current_chunk and count_tokens(current_chunk, st.session_state.tokenizer) >= min_size:
-        chunks.append({
-            'text': current_chunk.strip(),
-            'token_count': count_tokens(current_chunk, st.session_state.tokenizer),
-            'has_code': detect_code_blocks(current_chunk)
-        })
-    
-    return chunks
-
-def extract_text_from_pdf(pdf_path, start_page=11, end_page=50):
-    """Extract text from PDF pages"""
-    all_text = []
-    
-    with open(pdf_path, 'rb') as file:
-        pdf_reader = PyPDF2.PdfReader(file)
-        end_page = min(end_page, len(pdf_reader.pages))
-        
-        for page_num in range(start_page, end_page):
-            try:
-                text = pdf_reader.pages[page_num].extract_text()
-                if text.strip():
-                    all_text.append({'page': page_num, 'raw_text': text})
-            except Exception as e:
-                st.error(f"Error extracting page {page_num}: {e}")
-    
-    return all_text
-
-def create_rag_prompt(query, retrieved_chunks, context_limit=3):
-    """Create a well-structured RAG prompt"""
-    context_chunks = retrieved_chunks[:context_limit]
-    
-    context_text = ""
-    for i, chunk in enumerate(context_chunks, 1):
-        context_text += f"\n--- Context {i} (Relevance: {chunk.score:.3f}) ---\n"
-        context_text += chunk.payload['text'][:1000]
-        if len(chunk.payload['text']) > 1000:
-            context_text += "...\n"
-    
-    prompt = f"""You are an expert pandas assistant. Use the provided context to answer the user's question about pandas data analysis.
-
-CONTEXT:
-{context_text}
-
-INSTRUCTIONS:
-- Answer based primarily on the provided context
-- Include relevant code examples when available
-- If context doesn't fully answer the question, acknowledge this but provide helpful guidance
-- Be concise but comprehensive
-- Format code examples clearly
-
-USER QUESTION: {query}
-
-HELPFUL ANSWER:"""
-
-    return prompt
-
-def process_query(question, collection_name="pandas_fundamentals", top_k=3):
-    """Complete RAG pipeline"""
-    
-    if not st.session_state.get('qdrant_client'):
-        return None, "Database not connected. Please check Qdrant connection."
-    
-    if not st.session_state.get('groq_client'):
-        return None, "LLM not connected. Please check Groq API key."
-    
+def process_question(question, system, groq_client):
+    """Complete RAG pipeline processing"""
     try:
-        # Retrieve
-        query_embedding = st.session_state.embedding_model.encode(question)
+        # Preprocess and embed
+        processed_query = preprocess_query(question)
+        query_embedding = system['embedding_model'].encode(processed_query)
         
-        search_results = st.session_state.qdrant_client.query_points(
-            collection_name=collection_name,
+        # Vector search
+        results = system['qdrant_client'].query_points(
+            collection_name=system['collection_name'],
             query=query_embedding.tolist(),
-            limit=top_k
+            limit=3
         )
         
-        retrieved_chunks = search_results.points
+        if not results.points:
+            return "I couldn't find relevant information for your question.", 0.0, []
         
-        if not retrieved_chunks:
-            return None, "No relevant content found. Please try a different question."
+        # Build context
+        context_parts = []
+        for i, chunk in enumerate(results.points, 1):
+            context_parts.append(f"""
+Context {i} (Relevance: {chunk.score:.3f}):
+{chunk.payload['text'][:1200]}
+""")
         
-        # Generate
-        prompt = create_rag_prompt(question, retrieved_chunks, context_limit=top_k)
+        context = "\n".join(context_parts)
         
-        response = st.session_state.groq_client.chat.completions.create(
+        # Generate response
+        prompt = f"""You are a pandas expert assistant. Answer the user's question using the provided context.
+
+CONTEXT:
+{context}
+
+INSTRUCTIONS:
+- Base your answer on the provided context
+- Include code examples when available
+- Be clear and concise
+- If context is limited, acknowledge but still provide helpful guidance
+
+QUESTION: {question}
+
+ANSWER:"""
+
+        response = groq_client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model="llama-3.1-8b-instant",
-            max_tokens=1500,
+            max_tokens=1200,
             temperature=0.1
         )
         
         answer = response.choices[0].message.content
+        relevance = np.mean([r.score for r in results.points])
+        sources = [f"Pages {r.payload['source_pages']}" for r in results.points]
         
-        return {
-            "answer": answer,
-            "chunks": retrieved_chunks,
-            "avg_relevance": sum(c.score for c in retrieved_chunks) / len(retrieved_chunks)
-        }, None
+        return answer, relevance, sources
         
     except Exception as e:
-        return None, f"Error processing query: {str(e)}"
-
-def initialize_system():
-    """Initialize all system components"""
-    
-    with st.spinner("Initializing RAG system..."):
-        
-        # Initialize models
-        if 'tokenizer' not in st.session_state:
-            st.session_state.tokenizer = initialize_tokenizer()
-        
-        if 'embedding_model' not in st.session_state:
-            st.session_state.embedding_model = initialize_embedding_model()
-        
-        if 'qdrant_client' not in st.session_state:
-            st.session_state.qdrant_client = initialize_qdrant_client()
-        
-        # Initialize Groq
-        if 'groq_client' not in st.session_state:
-            groq_api_key = os.getenv('GROQ_API_KEY') or st.secrets.get("GROQ_API_KEY")
-            if groq_api_key:
-                try:
-                    st.session_state.groq_client = Groq(api_key=groq_api_key)
-                except Exception as e:
-                    st.error(f"Failed to initialize Groq: {e}")
-                    st.session_state.groq_client = None
-            else:
-                st.session_state.groq_client = None
-        
-        # Initialize chat history
-        if 'chat_history' not in st.session_state:
-            st.session_state.chat_history = []
-        
-        if 'system_ready' not in st.session_state:
-            st.session_state.system_ready = False
+        return f"Error processing question: {str(e)}", 0.0, []
 
 def main():
-    """Main Streamlit application"""
-    
     # Header
-    st.markdown('<div class="main-header">🐼 Pandas RAG Assistant</div>', unsafe_allow_html=True)
-    st.markdown("*Your intelligent assistant for pandas data analysis questions*")
+    st.markdown("""
+    <div class="app-header">
+        <div class="app-title">🐼 Pandas RAG Assistant</div>
+        <div class="app-subtitle">Your intelligent companion for pandas data analysis</div>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Initialize system
-    initialize_system()
+    system = initialize_rag_system()
+    
+    # Initialize session state
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    if "groq_client" not in st.session_state:
+        st.session_state.groq_client = None
     
     # Sidebar
     with st.sidebar:
-        st.header("📊 System Status")
+        # System status
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">🔧 System Status</div>', unsafe_allow_html=True)
         
-        # System status checks
-        tokenizer_status = "✅" if st.session_state.get('tokenizer') else "❌"
-        embedding_status = "✅" if st.session_state.get('embedding_model') else "❌"
-        qdrant_status = "✅" if st.session_state.get('qdrant_client') else "❌"
-        groq_status = "✅" if st.session_state.get('groq_client') else "❌"
-        
-        st.write(f"**Tokenizer:** {tokenizer_status}")
-        st.write(f"**Embeddings:** {embedding_status}")
-        st.write(f"**Vector DB:** {qdrant_status}")
-        st.write(f"**LLM:** {groq_status}")
-        
-        system_ready = all([
-            st.session_state.get('tokenizer'),
-            st.session_state.get('embedding_model'),
-            st.session_state.get('qdrant_client'),
-            st.session_state.get('groq_client')
-        ])
-        
-        if system_ready:
-            st.success("🚀 System Ready!")
-        else:
-            st.error("⚠️ System Not Ready")
-            if not st.session_state.get('groq_client'):
-                groq_key = st.text_input("Enter Groq API Key:", type="password")
-                if groq_key:
-                    try:
-                        st.session_state.groq_client = Groq(api_key=groq_key)
-                        st.success("Groq client initialized!")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Invalid API key: {e}")
-        
-        st.divider()
-        
-        # Settings
-        st.header("⚙️ Settings")
-        top_k = st.slider("Results to retrieve:", 1, 5, 3)
-        
-        # Sample questions
-        st.header("💡 Sample Questions")
-        sample_questions = [
-            "What is pandas?",
-            "How to create a DataFrame?",
-            "How to read CSV files?",
-            "What is groupby in pandas?",
-            "How to handle missing data?"
-        ]
-        
-        for q in sample_questions:
-            if st.button(q, key=f"sample_{q}"):
-                st.session_state.current_question = q
-        
-        st.divider()
-        
-        # Clear chat
-        if st.button("🗑️ Clear Chat"):
-            st.session_state.chat_history = []
-            st.rerun()
-    
-    # Main chat interface
-    st.header("💬 Chat with Pandas Expert")
-    
-    # Display chat history
-    for i, chat in enumerate(st.session_state.chat_history):
-        # User message
-        st.markdown(f"""
-        <div class="chat-message user-message">
-            <strong>You:</strong> {chat['question']}
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Assistant message
-        st.markdown(f"""
-        <div class="chat-message assistant-message">
-            <strong>Assistant:</strong><br>
-            {chat['answer']}
-            <div class="relevance-score">
-                Relevance Score: {chat.get('relevance', 0):.3f} | 
-                Sources: {len(chat.get('chunks', []))} chunks
+        if system['status'] == 'success':
+            st.markdown("""
+            <div class="status-container">
+                <div class="status-badge status-success">✅ RAG System Online</div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Query input
-    question = st.text_input(
-        "Ask a pandas question:",
-        value=st.session_state.get('current_question', ''),
-        placeholder="e.g., How do I merge two DataFrames?",
-        key="question_input"
-    )
-    
-    col1, col2 = st.columns([1, 4])
-    
-    with col1:
-        ask_button = st.button("🚀 Ask", type="primary")
-    
-    if ask_button and question and system_ready:
-        
-        with st.spinner("Processing your question..."):
-            result, error = process_query(question, top_k=top_k)
-        
-        if error:
+            """, unsafe_allow_html=True)
+            
+            # Performance metrics
+            eval_data = system['eval_data']
             st.markdown(f"""
-            <div class="error-message">
-                <strong>Error:</strong> {error}
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">{eval_data['metrics']['good_plus_rate']:.0%}</div>
+                    <div class="metric-label">Success Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">{eval_data['metrics']['avg_score']:.2f}</div>
+                    <div class="metric-label">Avg Score</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class="status-container">
+                <div class="status-badge status-error">❌ System Error</div>
+                <small>{system.get('error', 'Unknown error')}</small>
             </div>
             """, unsafe_allow_html=True)
         
-        elif result:
-            # Add to chat history
-            chat_entry = {
-                'question': question,
-                'answer': result['answer'],
-                'relevance': result['avg_relevance'],
-                'chunks': result['chunks']
-            }
-            st.session_state.chat_history.append(chat_entry)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # API Configuration
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">🤖 API Setup</div>', unsafe_allow_html=True)
+        
+        if not st.session_state.groq_client:
+            groq_key = st.text_input("Groq API Key:", type="password", key="groq_key")
+            if groq_key:
+                try:
+                    st.session_state.groq_client = Groq(api_key=groq_key)
+                    st.success("Connected to Groq!")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Connection failed: {str(e)}")
+        else:
+            st.markdown("""
+            <div class="status-container">
+                <div class="status-badge status-success">✅ Groq Connected</div>
+                <small>Model: llama-3.1-8b-instant</small>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Quick questions
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">⚡ Quick Start</div>', unsafe_allow_html=True)
+        
+        quick_questions = [
+            "What is a DataFrame?",
+            "How to read CSV files?",
+            "Using loc vs iloc?",
+            "GroupBy operations?",
+            "Handle missing data?",
+            "Merge DataFrames?"
+        ]
+        
+        for question in quick_questions:
+            if st.button(question, key=f"quick_{question}", use_container_width=True):
+                st.session_state.messages.append({"role": "user", "content": question})
+                st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Controls
+        st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">⚙️ Controls</div>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Clear Chat", use_container_width=True):
+                st.session_state.messages = []
+                st.rerun()
+        
+        with col2:
+            if st.button("Refresh", use_container_width=True):
+                st.cache_resource.clear()
+                st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Main chat interface
+    # Display chat messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
             
-            # Clear current question
-            if 'current_question' in st.session_state:
-                del st.session_state.current_question
-            
-            st.rerun()
+            # Show metadata for assistant messages
+            if message["role"] == "assistant" and "metadata" in message:
+                metadata = message["metadata"]
+                st.caption(f"Relevance: {metadata['relevance']:.3f} | Sources: {', '.join(metadata['sources'])}")
     
-    elif ask_button and not system_ready:
-        st.error("System not ready. Please check the sidebar for missing components.")
+    # Chat input
+    system_ready = system['status'] == 'success' and st.session_state.groq_client is not None
     
-    elif ask_button and not question:
-        st.warning("Please enter a question.")
+    if prompt := st.chat_input("Ask me anything about pandas...", disabled=not system_ready):
+        # Add user message
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        # Generate assistant response
+        with st.chat_message("assistant"):
+            if not system_ready:
+                error_msg = "Please check system status and API connection in the sidebar."
+                st.markdown(error_msg)
+                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+            else:
+                with st.spinner("Thinking..."):
+                    answer, relevance, sources = process_question(prompt, system, st.session_state.groq_client)
+                
+                st.markdown(answer)
+                st.caption(f"Relevance: {relevance:.3f} | Sources: {', '.join(sources)}")
+                
+                # Add assistant message with metadata
+                st.session_state.messages.append({
+                    "role": "assistant", 
+                    "content": answer,
+                    "metadata": {"relevance": relevance, "sources": sources}
+                })
     
-    # Footer
-    st.divider()
-    st.markdown("""
-    <div style="text-align: center; color: #666; font-size: 0.9rem;">
-        Powered by Pandas Documentation • Qdrant Vector Database • Groq LLM
-    </div>
-    """, unsafe_allow_html=True)
+    # System requirements notice
+    if not system_ready:
+        if system['status'] != 'success':
+            st.error("⚠️ RAG system not loaded. Please check if all components are available.")
+        elif not st.session_state.groq_client:
+            st.info("ℹ️ Please enter your Groq API key in the sidebar to start chatting.")
 
 if __name__ == "__main__":
     main()
