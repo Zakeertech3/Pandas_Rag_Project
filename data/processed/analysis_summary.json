@@ -1,0 +1,38 @@
+{
+  "total_pages": 473,
+  "error_pages": 0,
+  "tier_distribution": {
+    "tier_3_reference": 232,
+    "tier_2_secondary": 105,
+    "tier_1_primary": 79,
+    "tier_4_context": 55,
+    "empty": 2
+  },
+  "type_distribution": {
+    "structural": 335,
+    "general": 71,
+    "navigation": 39,
+    "conceptual": 20,
+    "code_heavy": 6,
+    "empty": 2
+  },
+  "quality_metrics": {
+    "substantial_content_pages": 369,
+    "high_pandas_pages": 85,
+    "code_heavy_pages": 19,
+    "quiz_potential_pages": 133
+  },
+  "statistical_summary": {
+    "avg_chars_per_page": 787.3974630021141,
+    "avg_words_per_page": 125.26427061310783,
+    "avg_pandas_score": 2.813953488372093,
+    "avg_code_score": 0.452431289640592
+  },
+  "utilization_strategy": {
+    "tier_1_primary": 79,
+    "tier_2_secondary": 105,
+    "tier_3_reference": 232,
+    "tier_4_context": 55,
+    "tier_5_minimal": 0
+  }
+}

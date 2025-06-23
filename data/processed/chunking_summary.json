@@ -1,0 +1,53 @@
+{
+  "total_chunks": 85,
+  "total_tokens": 80277,
+  "total_pages_utilized": 471,
+  "utilization_efficiency": 100.0,
+  "tier_statistics": {
+    "tier_1_primary": {
+      "chunk_count": 13,
+      "avg_tokens": 1325.5384615384614,
+      "total_pages": 79,
+      "avg_pandas_score": 9.236538461538462,
+      "avg_code_score": 1.3765567765567766,
+      "avg_quiz_score": 2.3813186813186813
+    },
+    "tier_2_secondary": {
+      "chunk_count": 16,
+      "avg_tokens": 1098.625,
+      "total_pages": 105,
+      "avg_pandas_score": 3.7866319444444443,
+      "avg_code_score": 0.5981150793650793,
+      "avg_quiz_score": 1.9548859126984126
+    },
+    "tier_3_reference": {
+      "chunk_count": 47,
+      "avg_tokens": 872.8936170212766,
+      "total_pages": 232,
+      "avg_pandas_score": 0.6978723404255318,
+      "avg_code_score": 0.2063829787234042,
+      "avg_quiz_score": 1.8000000000000003
+    },
+    "tier_4_context": {
+      "chunk_count": 9,
+      "avg_tokens": 493.44444444444446,
+      "total_pages": 55,
+      "avg_pandas_score": 0.0,
+      "avg_code_score": 0.0,
+      "avg_quiz_score": 1.0
+    }
+  },
+  "quality_metrics": {
+    "high_pandas_chunks": 13,
+    "code_heavy_chunks": 8,
+    "quiz_potential_chunks": 31,
+    "large_chunks": 37,
+    "comprehensive_chunks": 82
+  },
+  "improvement_metrics": {
+    "vs_original_chunk_count": "85 vs 13 (6.5x improvement)",
+    "vs_original_utilization": "100% vs 16% (6.25x improvement)",
+    "avg_tokens_per_chunk": "944",
+    "content_coverage": "Complete PDF utilization achieved"
+  }
+}

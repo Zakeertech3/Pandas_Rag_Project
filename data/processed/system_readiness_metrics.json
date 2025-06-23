@@ -1,0 +1,24 @@
+{
+  "retrieval_system": {
+    "total_chunks": 85,
+    "high_quality_chunks": 24,
+    "comprehensive_chunks": 37,
+    "code_example_chunks": 40,
+    "conceptual_chunks": 8,
+    "coverage_score": 28.235294117647058
+  },
+  "quiz_system": {
+    "total_quiz_chunks": 72,
+    "quiz_types_covered": 5,
+    "difficulty_levels": 3,
+    "question_generation_potential": 209,
+    "quiz_coverage_score": 84.70588235294117
+  },
+  "content_quality": {
+    "avg_tokens_per_chunk": 944.435294117647,
+    "avg_retrieval_score": 3.7628039215686284,
+    "avg_quiz_score": 5.861771708683475,
+    "multi_purpose_chunks": 40,
+    "utilization_efficiency": 100.0
+  }
+}

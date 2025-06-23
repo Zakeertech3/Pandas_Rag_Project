@@ -1,0 +1,37 @@
+{
+  "system_overview": {
+    "total_chunks": 85,
+    "pdf_utilization": 100.0,
+    "dual_purpose_optimization": true,
+    "chunk_improvement_factor": 6.5,
+    "utilization_improvement_factor": 6.25
+  },
+  "retrieval_capabilities": {
+    "high_quality_chunks": 24,
+    "code_example_chunks": 40,
+    "conceptual_chunks": 8,
+    "comprehensive_chunks": 37,
+    "reference_chunks": 63,
+    "avg_retrieval_score": 3.7628039215686284
+  },
+  "quiz_capabilities": {
+    "quiz_ready_chunks": 72,
+    "question_types_covered": 5,
+    "difficulty_levels_covered": 3,
+    "total_question_potential": 209,
+    "quiz_coverage_percentage": 84.70588235294117,
+    "avg_quiz_score": 5.861771708683475
+  },
+  "quiz_type_distribution": {
+    "multiple_choice": 26,
+    "code_completion": 29,
+    "true_false": 53,
+    "fill_blank": 65,
+    "scenario_based": 36
+  },
+  "quality_metrics": {
+    "avg_tokens_per_chunk": 944.435294117647,
+    "multi_purpose_chunks": 40,
+    "content_utilization_efficiency": 100.0
+  }
+}

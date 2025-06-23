@@ -1,0 +1,51 @@
+{
+  "generation_summary": {
+    "multiple_choice": 4,
+    "code_completion": 5,
+    "true_false": 5,
+    "fill_blank": 5,
+    "scenario": 3,
+    "total": 22
+  },
+  "quality_analysis": {
+    "total_questions": 22,
+    "question_types": {
+      "multiple_choice": 4,
+      "code_completion": 5,
+      "true_false": 5,
+      "fill_blank": 5,
+      "scenario": 3
+    },
+    "difficulty_distribution": {
+      "beginner": 8,
+      "advanced": 9,
+      "intermediate": 5
+    },
+    "source_coverage": {
+      "unique_chunks_used": 21,
+      "unique_pages_used": 122,
+      "tier_distribution": {
+        "tier_2_secondary": 6,
+        "tier_1_primary": 4,
+        "tier_3_reference": 12
+      }
+    }
+  },
+  "system_performance": {
+    "total_chunks_available": 85,
+    "chunks_utilized_for_quiz": 21,
+    "utilization_rate": 24.705882352941178,
+    "pages_covered": 122,
+    "questions_generated": 22
+  },
+  "content_diversity": {
+    "question_types_covered": 5,
+    "difficulty_levels": 3,
+    "tier_coverage": [
+      "tier_2_secondary",
+      "tier_1_primary",
+      "tier_3_reference"
+    ],
+    "balanced_distribution": true
+  }
+}

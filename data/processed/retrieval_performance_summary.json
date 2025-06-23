@@ -1,0 +1,44 @@
+{
+  "retrieval_performance": {
+    "average_relevance_score": 0.6497244739999999,
+    "median_relevance_score": 0.6530479,
+    "best_score": 0.7594846,
+    "worst_score": 0.5028169,
+    "good_plus_rate": 73.33333333333333,
+    "excellent_rate": 0.0
+  },
+  "system_improvements": {
+    "original_chunks": 13,
+    "enhanced_chunks": 85,
+    "chunk_improvement_factor": 6.538461538461538,
+    "original_pdf_utilization": 16,
+    "enhanced_pdf_utilization": 100,
+    "utilization_improvement_factor": 6.25,
+    "new_capabilities": [
+      "quiz_generation",
+      "advanced_preprocessing",
+      "multi_tier_retrieval",
+      "dual_purpose_optimization"
+    ]
+  },
+  "quality_distribution": {
+    "excellent": 0,
+    "good": 11,
+    "fair": 4,
+    "poor": 0
+  },
+  "system_capabilities": {
+    "total_vectors_in_database": 85,
+    "high_quality_retrieval_chunks": 24,
+    "excellent_quiz_source_chunks": 72,
+    "embedding_model": "multi-qa-mpnet-base-dot-v1",
+    "vector_dimension": 768,
+    "collection_name": "pandas_docs_enhanced_100pct",
+    "preprocessing_enabled": true
+  },
+  "test_coverage": {
+    "total_test_queries": 15,
+    "successful_retrievals": 15,
+    "success_rate": 100.0
+  }
+}

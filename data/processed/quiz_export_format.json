@@ -1,0 +1,449 @@
+[
+  {
+    "id": "mc_2",
+    "type": "multiple_choice",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        249,
+        252,
+        269,
+        274,
+        275,
+        276,
+        280,
+        286
+      ],
+      "chunk_id": 21
+    },
+    "question": "What does the groupby() function do in pandas?",
+    "options": [
+      "Sorts data in ascending order",
+      "Groups DataFrame rows based on specified columns for aggregation",
+      "Removes duplicate rows",
+      "Merges two DataFrames"
+    ],
+    "correct_answer_index": 1,
+    "explanation": "groupby() splits data into groups based on specified criteria, allowing for group-wise operations."
+  },
+  {
+    "id": "mc_3",
+    "type": "multiple_choice",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "chunk_id": 1
+    },
+    "question": "What is a pandas Series?",
+    "options": [
+      "A two-dimensional data structure",
+      "A one-dimensional labeled array capable of holding any data type",
+      "A function to merge DataFrames",
+      "A method to group data"
+    ],
+    "correct_answer_index": 1,
+    "explanation": "A Series is a one-dimensional labeled array, essentially a single column of a DataFrame."
+  },
+  {
+    "id": "mc_4",
+    "type": "multiple_choice",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        229,
+        230,
+        232,
+        238,
+        240
+      ],
+      "chunk_id": 54
+    },
+    "question": "What is a pandas DataFrame?",
+    "options": [
+      "A two-dimensional labeled data structure with columns of potentially different types",
+      "A one-dimensional array-like object containing data and associated labels",
+      "A function used to read CSV files",
+      "A method to clean missing data"
+    ],
+    "correct_answer_index": 0,
+    "explanation": "A DataFrame is pandas' primary 2D data structure, similar to a spreadsheet or SQL table."
+  },
+  {
+    "id": "mc_5",
+    "type": "multiple_choice",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        440,
+        441,
+        442,
+        445,
+        447
+      ],
+      "chunk_id": 71
+    },
+    "question": "What does the groupby() function do in pandas?",
+    "options": [
+      "Sorts data in ascending order",
+      "Groups DataFrame rows based on specified columns for aggregation",
+      "Removes duplicate rows",
+      "Merges two DataFrames"
+    ],
+    "correct_answer_index": 1,
+    "explanation": "groupby() splits data into groups based on specified criteria, allowing for group-wise operations."
+  },
+  {
+    "id": "cc_1",
+    "type": "code_completion",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        223,
+        225,
+        226,
+        227,
+        228
+      ],
+      "chunk_id": 53
+    },
+    "question": "Complete the code to read a CSV file:",
+    "code_template": "df = pd.____(\"data.csv\")",
+    "correct_answer": "read_csv",
+    "explanation": "pd.read_csv() is the standard function to read CSV files into a DataFrame."
+  },
+  {
+    "id": "cc_2",
+    "type": "code_completion",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        177,
+        178,
+        179,
+        180,
+        181
+      ],
+      "chunk_id": 47
+    },
+    "question": "Complete the code to group data by a column:",
+    "code_template": "grouped = df.____(\"column_name\")",
+    "correct_answer": "groupby",
+    "explanation": "df.groupby() groups the DataFrame based on the values in the specified column."
+  },
+  {
+    "id": "cc_3",
+    "type": "code_completion",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        65,
+        66,
+        67,
+        68,
+        74,
+        75,
+        78
+      ],
+      "chunk_id": 4
+    },
+    "question": "Complete the code to select rows by label:",
+    "code_template": "result = df.____[row_label]",
+    "correct_answer": "loc",
+    "explanation": "df.loc[] is used for label-based indexing to select rows and columns."
+  },
+  {
+    "id": "cc_4",
+    "type": "code_completion",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        54
+      ],
+      "chunk_id": 2
+    },
+    "question": "Complete the code to get the first 5 rows:",
+    "code_template": "first_rows = df.____()",
+    "correct_answer": "head",
+    "explanation": "df.head() returns the first 5 rows by default, or n rows if specified."
+  },
+  {
+    "id": "cc_5",
+    "type": "code_completion",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85
+      ],
+      "chunk_id": 5
+    },
+    "question": "Complete the code to remove missing values:",
+    "code_template": "cleaned = df.____()",
+    "correct_answer": "dropna",
+    "explanation": "df.dropna() removes rows or columns containing missing (NaN) values."
+  },
+  {
+    "id": "tf_1",
+    "type": "true_false",
+    "difficulty": "intermediate",
+    "metadata": {
+      "source_pages": [
+        38,
+        53,
+        56,
+        58,
+        63,
+        70
+      ],
+      "chunk_id": 14
+    },
+    "statement": "pandas DataFrames can only contain numeric data types",
+    "correct_answer": false,
+    "explanation": "DataFrames can contain mixed data types including strings, numbers, dates, and more."
+  },
+  {
+    "id": "tf_2",
+    "type": "true_false",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        72,
+        73,
+        76,
+        77,
+        89,
+        91,
+        101
+      ],
+      "chunk_id": 15
+    },
+    "statement": "The loc method is used for integer-position based indexing",
+    "correct_answer": false,
+    "explanation": "loc is used for label-based indexing. iloc is used for integer-position based indexing."
+  },
+  {
+    "id": "tf_3",
+    "type": "true_false",
+    "difficulty": "intermediate",
+    "metadata": {
+      "source_pages": [
+        376,
+        377,
+        379,
+        380,
+        382
+      ],
+      "chunk_id": 63
+    },
+    "statement": "groupby operations always return a new DataFrame",
+    "correct_answer": false,
+    "explanation": "groupby returns a GroupBy object that can be used for various aggregation operations."
+  },
+  {
+    "id": "tf_4",
+    "type": "true_false",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        453,
+        457,
+        460,
+        461,
+        463
+      ],
+      "chunk_id": 73
+    },
+    "statement": "pd.read_csv() can automatically detect data types",
+    "correct_answer": true,
+    "explanation": "pandas can automatically infer data types when reading CSV files, though manual specification is often better."
+  },
+  {
+    "id": "tf_5",
+    "type": "true_false",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "chunk_id": 30
+    },
+    "statement": "merge() and join() operations in pandas are identical",
+    "correct_answer": false,
+    "explanation": "While similar, merge() is more flexible and can join on columns, while join() typically joins on index."
+  },
+  {
+    "id": "fb_1",
+    "type": "fill_blank",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        172,
+        173,
+        174,
+        175,
+        176
+      ],
+      "chunk_id": 46
+    },
+    "question": "To select the first 10 rows of a DataFrame, use: df.______(10)",
+    "correct_answer": "head",
+    "explanation": "The head() method returns the first n rows of the DataFrame."
+  },
+  {
+    "id": "fb_2",
+    "type": "fill_blank",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        287,
+        288,
+        291,
+        292,
+        293,
+        294,
+        296
+      ],
+      "chunk_id": 22
+    },
+    "question": "To remove duplicate rows from a DataFrame, use: df._______()",
+    "correct_answer": "drop_duplicates",
+    "explanation": "drop_duplicates() removes duplicate rows based on all columns or specified columns."
+  },
+  {
+    "id": "fb_3",
+    "type": "fill_blank",
+    "difficulty": "beginner",
+    "metadata": {
+      "source_pages": [
+        199,
+        201,
+        205,
+        207,
+        208
+      ],
+      "chunk_id": 50
+    },
+    "question": "To get summary statistics of a DataFrame, use: df._______()",
+    "correct_answer": "describe",
+    "explanation": "describe() generates descriptive statistics including count, mean, std, min, max, etc."
+  },
+  {
+    "id": "fb_4",
+    "type": "fill_blank",
+    "difficulty": "intermediate",
+    "metadata": {
+      "source_pages": [
+        358,
+        361,
+        364,
+        365,
+        366,
+        370,
+        373,
+        395
+      ],
+      "chunk_id": 26
+    },
+    "question": "To sort a DataFrame by a column, use: df._______('column_name')",
+    "correct_answer": "sort_values",
+    "explanation": "sort_values() sorts the DataFrame by the values in the specified column(s)."
+  },
+  {
+    "id": "fb_5",
+    "type": "fill_blank",
+    "difficulty": "intermediate",
+    "metadata": {
+      "source_pages": [
+        390,
+        391,
+        392,
+        393,
+        394
+      ],
+      "chunk_id": 65
+    },
+    "question": "To fill missing values with a specific value, use: df.______(value)",
+    "correct_answer": "fillna",
+    "explanation": "fillna() replaces NaN values with the specified value or strategy."
+  },
+  {
+    "id": "sc_1",
+    "type": "scenario",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        287,
+        288,
+        291,
+        292,
+        293,
+        294,
+        296
+      ],
+      "chunk_id": 22
+    },
+    "scenario": "You have a sales dataset with columns: Date, Product, Sales_Amount, Region. You want to find the total sales by region.",
+    "question": "Which pandas operation would you use?",
+    "suggested_answer": "df.groupby(\"Region\")[\"Sales_Amount\"].sum()",
+    "explanation": "groupby(\"Region\") groups data by region, then sum() calculates total sales for each region."
+  },
+  {
+    "id": "sc_2",
+    "type": "scenario",
+    "difficulty": "advanced",
+    "metadata": {
+      "source_pages": [
+        256,
+        257,
+        259,
+        260,
+        261
+      ],
+      "chunk_id": 56
+    },
+    "scenario": "You have two DataFrames: customers (with customer_id, name) and orders (with order_id, customer_id, amount). You want to combine them.",
+    "question": "What is the best method to join these DataFrames?",
+    "suggested_answer": "pd.merge(customers, orders, on=\"customer_id\")",
+    "explanation": "merge() joins DataFrames on common columns, in this case customer_id."
+  },
+  {
+    "id": "sc_3",
+    "type": "scenario",
+    "difficulty": "intermediate",
+    "metadata": {
+      "source_pages": [
+        262,
+        263,
+        264,
+        265,
+        267
+      ],
+      "chunk_id": 57
+    },
+    "scenario": "Your dataset has missing values in the \"Age\" column, and you want to replace them with the average age.",
+    "question": "How would you handle this?",
+    "suggested_answer": "df[\"Age\"].fillna(df[\"Age\"].mean())",
+    "explanation": "fillna() with mean() replaces missing values with the calculated average."
+  }
+]
